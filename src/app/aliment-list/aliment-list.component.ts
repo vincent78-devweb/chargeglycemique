@@ -1,13 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-
-import {Sort} from '@angular/material/sort';
-
-import { of } from 'rxjs';
+import { Sort } from '@angular/material/sort';
 
 import { DataService } from '../services/data.service';
 import { Aliment } from '../models/aliment';
-import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-aliment-list',
@@ -17,66 +13,70 @@ import { tap } from 'rxjs/operators';
 
 export class AlimentListComponent implements OnInit {
 
-  alimentForm; // FormBuilder instance
-
-  aliments;
-  sortedData;
-  alimentsDisplayedColumns;
+  public alimentForm; // FormBuilder instance
+  public aliments: Aliment[];
+  public alimentsDisplayedColumns = [];
 
   /**
    * Constructor
-   * @param DataService
-   * @param FormBuilder
+   * @param dataService DataService Aliments
    */
   constructor(
     private dataService: DataService
-    //private formBuilder: FormBuilder
-    ) {
-    /**
-    this.alimentForm = this.formBuilder.group({
-      ig: new FormControl([0, [Validators.min(0), Validators.max(200)]]),
-      carbs: 0,
-      name: '',
-      emailFormControl: new FormControl('', [ Validators.required, Validators.email])
-    });
-    */
+  ) {
   }
 
   /**
-   * Initialize module
+   * Initialize the module
    */
   ngOnInit() {
-    // Passage de tableau par référence
-    // Tableau aliments partagé avec le module DataService
-    this.aliments = this.dataService.getAliments();
-    this.sortedData = this.aliments;
+    // Set displayable columns of the aliments table 
     this.alimentsDisplayedColumns = ['name', 'ig', 'carbs', 'suppr'];
 
+    // Load Aliments list from the associate service
+    this.refreshAliments();
+
+    // Initialize the aliment add form
     this.alimentForm = new FormGroup({
-      ig: new FormControl(null, [Validators.required, Validators.min(0), Validators.max(200)]),
-      carbs: new FormControl(null, [Validators.required, Validators.min(0), Validators.max(100)]),
-      name: new FormControl('', [Validators.required, Validators.maxLength(60)])
+      ig    : new FormControl(null, [Validators.required, Validators.min(0), Validators.max(200)]),
+      carbs : new FormControl(null, [Validators.required, Validators.min(0), Validators.max(100)]),
+      name  : new FormControl('', [Validators.required, Validators.maxLength(60)])
     });
   }
 
-    /**
-   * Generic form controler error manager
+  /**
+   * Generic error manager for the form controler
+   * @param controlName The name property of the field to control (see <mat-error> tag in the template for more details)
+   * @param errorName The name property of the error to control (see <mat-error> tag in the template for more details)
    */
-  public hasError = (controlName: string, errorName: string) =>{
+  public hasError = (controlName: string, errorName: string) => {
     return this.alimentForm.controls[controlName].hasError(errorName);
   }
 
   /**
-   * Add a new aliment
-   * @param aliment 
+   * Refresh the aliments with the aliments from the aliment service
    */
-  onSubmitAliment(aliment) {
+  public refreshAliments() {
+    // Load Aliments list from the associate service
+    // and subscribe to the callback when loading complete 
+    this.dataService.getAliments().subscribe(dataList => {
+      this.aliments = dataList;
+    });
+  }
+
+  /**
+   * Add a new aliment in the aliments table
+   * @param aliment The aliment to add
+   */
+  public onSubmitAliment(aliment: Aliment) {
     if (this.alimentForm.valid) {
-      // Add the new aliment into the aliments array
+      
+      // Save the new aliment into the service aliments array
       this.dataService.addAliment(aliment);
+      
       // Refresh the aliment array
-      this.aliments = this.dataService.getAliments();
-      this.sortedData = this.aliments;
+      this.refreshAliments();
+      
       // Reset the form
       this.alimentForm.reset();
 
@@ -90,52 +90,45 @@ export class AlimentListComponent implements OnInit {
   }
 
   /**
-   * Delete an aliment
-   * @param aliment 
+   * Delete an aliment in the aliments table
+   * @param aliment The aliment to remove
    */
-  onDeleteAliment(aliment) {
+  public onDeleteAliment(aliment: Aliment) {
     // Delete the aliment
     this.dataService.removeAliment(aliment);
+
     // Refresh the aliment array
-    this.aliments = this.dataService.getAliments();
-    this.sortedData = this.aliments;
+    this.refreshAliments();
   }
 
   /**
    * Sort aliments (all columns)
-   * @param Sort
+   * @param sort The object Sort used to retrieve which column has to be sorted
    */
-  sortData(sort: Sort) {
-    this.sortedData = this.dataService.getAliments().pipe(
-      tap(dataList => dataList.sort((a, b) => {
-        const isAsc = sort.direction === 'asc';
-        switch (sort.active) {
-          case 'name': return this.compare(a.name, b.name, isAsc);
-          case 'ig': return this.compare(a.ig, b.ig, isAsc);
-          case 'carbs': return this.compare(a.carbs, b.carbs, isAsc);
-          default: return 0;
-        }
-      })
-    ));
+  public sortAliments(sort: Sort) {
 
-    // const data = this.dataService.aliments.slice();
-    // if (!sort.active || sort.direction === '') {
-    //   this.sortedData = of(data); // Aliment list is observable -> Must transform array into an observable object
-    //   return;
-    // }
+    const data = this.aliments.slice();
+    if (!sort.active || sort.direction === '') {
+      this.aliments = data;
+      return;
+    }
 
-    // this.sortedData = of(data.sort((a, b) => {
-    //   const isAsc = sort.direction === 'asc';
-    //   switch (sort.active) {
-    //     case 'name': return this.compare(a.name, b.name, isAsc);
-    //     case 'ig': return this.compare(a.ig, b.ig, isAsc);
-    //     case 'carbs': return this.compare(a.carbs, b.carbs, isAsc);
-    //     default: return 0;
-    //   }
-    // }));
+    this.aliments = data.sort((a, b) => {
+      const isAsc = sort.direction === 'asc';
+      switch (sort.active) {
+        case 'name': return this.compare(a.name, b.name, isAsc);
+        case 'ig': return this.compare(a.ig, b.ig, isAsc);
+        case 'carbs': return this.compare(a.carbs, b.carbs, isAsc);
+        default: return 0;
+      }
+    });
   }
 
-  compare(a: number | string, b: number | string, isAsc: boolean) {
+  /**
+   * Generic compare method
+   * @TODO : should be include in a share directive?
+   */
+  public compare(a: number | string, b: number | string, isAsc: boolean) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 }

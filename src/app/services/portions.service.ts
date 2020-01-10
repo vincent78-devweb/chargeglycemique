@@ -28,9 +28,7 @@ export class PortionsService {
    */
   getCharge() {
     let charge = 0;
-
     this.portions.map(portion => charge = charge + portion.charge);
-
     return charge;
   }
 

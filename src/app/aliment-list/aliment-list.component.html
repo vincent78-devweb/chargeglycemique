@@ -50,8 +50,8 @@
 
         <mat-card-content>
 
-            <table mat-table [dataSource]="sortedData | async" class="mat-elevation-z8" matSort
-                (matSortChange)="sortData($event)">
+            <table mat-table [dataSource]="aliments" class="mat-elevation-z8" matSort
+                (matSortChange)="sortAliments($event)">
                 <!-- Name Column -->
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header="name"> Nom de l'aliment </th>

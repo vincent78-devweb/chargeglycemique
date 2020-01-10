@@ -1,0 +1,114 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import {HttpErrorResponse} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError, tap, map} from 'rxjs/operators';
+import { of } from 'rxjs';
+
+import { Aliment } from './models/aliment'; // Interface Aliment
+//import { aliments } from './aliments'; // Liste des aliments
+
+
+@Injectable({
+  providedIn: 'root'
+})
+
+export class DataService {
+
+  localAliments = [{
+    "ig": 110,
+    "carbs": 4.5,
+    "name": "_Local array : Binouze"
+  },
+  {
+    "ig": 100,
+    "carbs": 100,
+    "name": "_Local array : Pinard"
+  },
+  {
+    "ig": 95,
+    "carbs": 73,
+    "name": "_Local array : Gnôle de papy"
+  }];
+ 
+  // Aliments (local + http)
+  aliments: Aliment[] = [];
+  globalAliments: Aliment[] = [];
+
+  isLocalStorage = false;
+
+  constructor(private http: HttpClient) { }
+
+  getAliments() {
+    if (this.aliments.length > 0) {
+      return of(this.aliments.slice())
+    } else {
+      return this.http.get<Aliment[]>('/assets/aliments.json')
+        .pipe(
+               tap(dataList => this.aliments = dataList),
+               tap(dataList => sessionStorage.setItem('dataStorageKey', JSON.stringify(dataList)))
+              );
+    }
+
+  }
+
+  /** 
+   * Get locale collection of aliments
+   */
+   getLocalAliments() {
+    return this.localAliments;
+  }
+
+  hasLocalStorage() {
+    return this.isLocalStorage;
+  }
+
+  /**
+   * Get collection of aliment from a JSON file
+   */
+  getHttpAliments(): Observable<Aliment[]> {
+    // Clear the array
+    this.aliments.length = 0;
+    // Add local aliments
+    Array.prototype.push.apply(this.aliments, this.localAliments);
+    // Load JSON aliments
+    return this.http.get<Aliment[]>('/assets/aliments.json').pipe(
+        // Add JSON aliments into the global aliments array
+        tap(data => 
+            Array.prototype.push.apply(this.aliments, data)
+          ),
+          // Add local aliments array into the JSON aliment array
+          tap(data => 
+              Array.prototype.push.apply(data, this.localAliments)
+            ),
+        catchError(this.handleError)
+    );
+}
+
+/**
+ * Manage http error
+ * @param err 
+ */
+private handleError(err: HttpErrorResponse) {
+
+    let errorMessage = '';
+    if (err.error instanceof ErrorEvent) {
+
+        errorMessage = `An error occurred: ${err.error.message}`;
+    } else {
+
+        errorMessage = `Server returned code: ${err.status}, error message is: ${err.message}`;
+    }
+    console.error(errorMessage);
+    return throwError(errorMessage);
+}
+
+  /**
+   * Add an aliment into the local collection localAliments
+   * @param aliment 
+   */
+  addAlimentToLocalList(aliment) {
+    //Array.prototype.push.apply(aliments, aliment);
+  }
+
+}

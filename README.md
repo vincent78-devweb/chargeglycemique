@@ -56,7 +56,7 @@ Tous les attendus du MVP ainsi que les deux bonus sont présents dans le rendu.
 
 * **Saisie des aliments**
 
-![Aliments](./images/aliments1.png)
+![Aliments](./images/aliments1.PNG)
 
 * **Calculateur de portions**
 

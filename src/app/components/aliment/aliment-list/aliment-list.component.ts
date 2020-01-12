@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Sort } from '@angular/material/sort';
+import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 
-import { DataService } from '../services/data.service';
-import { Aliment } from '../models/aliment';
+import { DataService } from '../../../services/data.service';
+import { Aliment } from '../../../models/aliment';
 
 @Component({
   selector: 'app-aliment-list',
@@ -13,9 +13,13 @@ import { Aliment } from '../models/aliment';
 
 export class AlimentListComponent implements OnInit {
 
-  public alimentForm; // FormBuilder instance
-  public aliments: Aliment[];
-  public alimentsDisplayedColumns = [];
+  alimentForm; // FormBuilder instance
+  aliments: Aliment[];
+  alimentsDisplayedColumns = [];
+
+  dataSource: MatTableDataSource<Aliment>;
+  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   /**
    * Constructor
@@ -34,6 +38,9 @@ export class AlimentListComponent implements OnInit {
     this.alimentsDisplayedColumns = ['name', 'ig', 'carbs', 'suppr'];
 
     // Load Aliments list from the associate service
+    this.dataSource = new MatTableDataSource(this.aliments);
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
     this.refreshAliments();
 
     // Initialize the aliment add form
@@ -49,18 +56,19 @@ export class AlimentListComponent implements OnInit {
    * @param controlName The name property of the field to control (see <mat-error> tag in the template for more details)
    * @param errorName The name property of the error to control (see <mat-error> tag in the template for more details)
    */
-  public hasError = (controlName: string, errorName: string) => {
+  hasError = (controlName: string, errorName: string) => {
     return this.alimentForm.controls[controlName].hasError(errorName);
   }
 
   /**
    * Refresh the aliments with the aliments from the aliment service
    */
-  public refreshAliments() {
+  refreshAliments() {
     // Load Aliments list from the associate service
     // and subscribe to the callback when loading complete 
     this.dataService.getAliments().subscribe(dataList => {
-      this.aliments = dataList;
+      this.aliments = dataList.slice();
+      this.dataSource.data = this.aliments;
     });
   }
 
@@ -68,9 +76,12 @@ export class AlimentListComponent implements OnInit {
    * Add a new aliment in the aliments table
    * @param aliment The aliment to add
    */
-  public onSubmitAliment(aliment: Aliment) {
-    if (this.alimentForm.valid) {
-      
+  onSubmitAliment(aliment: Aliment) {
+    // @TODO : Le bouton Ajouter ne se grise pas après validation du formulaire
+    // Workaround : test si tous les champs sont renseignés
+    if (this.alimentForm.valid && aliment.name != null && aliment.ig != null && aliment.carbs != null) {
+      console.log("ig=" + JSON.stringify(aliment));
+
       // Save the new aliment into the service aliments array
       this.dataService.addAliment(aliment);
       
@@ -93,7 +104,7 @@ export class AlimentListComponent implements OnInit {
    * Delete an aliment in the aliments table
    * @param aliment The aliment to remove
    */
-  public onDeleteAliment(aliment: Aliment) {
+  onDeleteAliment(aliment: Aliment) {
     // Delete the aliment
     this.dataService.removeAliment(aliment);
 
@@ -101,35 +112,5 @@ export class AlimentListComponent implements OnInit {
     this.refreshAliments();
   }
 
-  /**
-   * Sort aliments (all columns)
-   * @param sort The object Sort used to retrieve which column has to be sorted
-   */
-  public sortAliments(sort: Sort) {
-
-    const data = this.aliments.slice();
-    if (!sort.active || sort.direction === '') {
-      this.aliments = data;
-      return;
-    }
-
-    this.aliments = data.sort((a, b) => {
-      const isAsc = sort.direction === 'asc';
-      switch (sort.active) {
-        case 'name': return this.compare(a.name, b.name, isAsc);
-        case 'ig': return this.compare(a.ig, b.ig, isAsc);
-        case 'carbs': return this.compare(a.carbs, b.carbs, isAsc);
-        default: return 0;
-      }
-    });
-  }
-
-  /**
-   * Generic compare method
-   * @TODO : should be include in a share directive?
-   */
-  public compare(a: number | string, b: number | string, isAsc: boolean) {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
-  }
 }
 

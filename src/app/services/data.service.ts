@@ -23,27 +23,42 @@ export class DataService {
   ) { }
 
   /**
-   * Get Aliments (Asynchron)
+   * Get Aliments (caution : asynchron method!)
    * @return Observable<Aliment[]> 
    */
   public getAliments(): Observable<Aliment[]> {
     if (this.alimentListAvailable) {
       // If already exists, return a observable copy of aliments array
-      return of(this.aliments.slice())
+      return of(this.aliments.slice());
+
     } else {
-      // If not, load aliments JSON collection
-      return this.http.get<Aliment[]>('/assets/aliments.json')
-        // Perfom these actions when loading complete
-        .pipe(
-          // Save the loaded datalist into the aliments array
-          tap(dataList => this.aliments = dataList.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))),
-          // Set boolean Aliments list available to true
-          tap(dataList => this.alimentListAvailable = true),
-          // Save aliments to local storage
-          tap(dataList => sessionStorage.setItem('dataStorageKey', JSON.stringify(dataList))),
-          // Generic error handler
-          catchError(this.handleError)
-        );
+      
+      // If not, load aliments from local storage
+      if(localStorage.getItem('aliments') !== null){
+          // Get Aliments from the local storage
+          let dataList = JSON.parse(localStorage.getItem("aliments"));
+          // Save and sort the loaded datalist into the aliments array
+          this.aliments = dataList.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+          this.alimentListAvailable = true;
+          // Return an observable copy of aliments
+          return of(this.aliments.slice());
+      
+      } else {
+      
+          // If not, load aliments JSON collection
+        return this.http.get<Aliment[]>('/assets/aliments.json')
+          // Perfom these actions when loading complete
+          .pipe(
+            // Save and sort the loaded datalist into the aliments array
+            tap(dataList => this.aliments = dataList.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))),
+            // Set boolean Aliments list available to true
+            tap(dataList => this.alimentListAvailable = true),
+            // Save aliments to local storage
+            tap(dataList => localStorage.setItem('aliments', JSON.stringify(dataList))),
+            // Generic error handler
+            catchError(this.handleError)
+          );
+      }
     }
   }
 
@@ -53,6 +68,8 @@ export class DataService {
    */
   public addAliment(aliment: Aliment) {
     this.aliments.push(aliment);
+    // Save aliments to local storage
+    localStorage.setItem('aliments', JSON.stringify(this.aliments));
   }
 
   /**
@@ -61,6 +78,8 @@ export class DataService {
    */
   public removeAliment(aliment) {
     this.aliments = this.aliments.filter(al => al.name != aliment.name);
+    // Save aliments to local storage
+    localStorage.setItem('aliments', JSON.stringify(this.aliments));
   }
 
   /**

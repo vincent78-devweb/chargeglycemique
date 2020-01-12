@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import {DemoMaterialModule} from './material-module';
 import {MatToolbarModule} from '@angular/material/toolbar';
@@ -10,19 +11,21 @@ import {MatTabsModule} from '@angular/material/tabs';
 import 'hammerjs';
 
 import { AppComponent } from './app.component';
-import { AlimentListComponent } from './aliment-list/aliment-list.component';
-//import { MinDirective, MaxDirective } from './aliment-list/aliment-list.component';
-import { CalculatorComponent } from './calculator/calculator.component';
 import { AppRoutingModule } from './app-routing/app-routing.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { AlimentListComponent } from './components/aliment/aliment-list/aliment-list.component';
+import { CalculatorComponent } from './components/calculator/calculator.component';
+import { MealListComponent } from './components/meal/meal-list/meal-list.component';
+import { MealCreateDialogComponent } from './components/meal/meal-create-dialog/meal-create-dialog.component';
+import { MealDetailComponent } from './components/meal/meal-detail/meal-detail.component'
 
 @NgModule({
   declarations: [
     AppComponent,
     AlimentListComponent,
-    CalculatorComponent
-  //  MinDirective, 
-  //  MaxDirective
+    CalculatorComponent,
+    MealCreateDialogComponent,
+    MealListComponent,
+    MealDetailComponent
   ],
   imports: [
     BrowserModule,
@@ -34,6 +37,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
     MatTabsModule,
     BrowserAnimationsModule,
     DemoMaterialModule
+  ],
+  entryComponents: [
+    MealCreateDialogComponent,
+    MealListComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

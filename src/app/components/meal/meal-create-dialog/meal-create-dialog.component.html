@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>Enregistrer un repas</h1>
+<div mat-dialog-content style="height:140px;">
+    <form [formGroup]="mealForm" novalidate (ngSubmit)="onSubmitMeal(mealForm.value)"
+            fxLayout="column wrap" fxLayoutAlign="center center" fxLayoutGap="10px">
+  <mat-form-field style="margin-right: 10px;">
+    <input matInput  placeholder="Nom du repas" formControlName="name" required>
+    <mat-hint>60 caractères maximum.</mat-hint>
+    <mat-error *ngIf="hasError('name', 'required')">Saisie obligatoire</mat-error>
+    <mat-error *ngIf="hasError('name', 'maxlength')">Le nom du repas dépasse 60 caractères</mat-error>
+</mat-form-field>
+
+<div mat-dialog-actions>
+    <button mat-raised-button color="warn" (click)="onCancelClick()">Annuler</button>
+    <button mat-raised-button color="primary" [disabled]="!mealForm.valid">Enregistrer</button>
+</div>
+
+</form>

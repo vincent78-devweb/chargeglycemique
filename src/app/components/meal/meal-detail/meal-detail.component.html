@@ -1,0 +1,48 @@
+<section fxLayout="row wrap" fxLayoutAlign="center center">
+    <mat-card fxFlex="500px" fxFlex.xs="100%">
+        <mat-card-header>
+            <mat-card-title>Détail d'un repas</mat-card-title>
+            <mat-card-subtitle><b>Nom du repas : {{ meal.name }}</b></mat-card-subtitle>
+            <mat-card-subtitle><b>Charge totale : {{ globalCharge  | number:'1.0-2'}}</b></mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort style="width: 100%;">
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header="name"> Nom de l'aliment </th>
+                    <td mat-cell *matCellDef="let portion"> {{portion.name}} </td>
+                </ng-container>
+
+                <!-- Ig Column -->
+                <ng-container matColumnDef="ig">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header="ig"> Index glycémique </th>
+                    <td mat-cell *matCellDef="let portion"> {{portion.ig | number:'1.0-2'}} </td>
+                </ng-container>
+
+                <!-- Carbs Column -->
+                <ng-container matColumnDef="carbs">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header="carbs"> Proportion de glucides (g/100g) </th>
+                    <td mat-cell *matCellDef="let portion"> {{portion.carbs | number:'1.0-2'}} </td>
+                </ng-container>
+
+                <!-- Charge Column -->
+                <ng-container matColumnDef="charge">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header="charge"> Charge glycémique calculée </th>
+                    <td mat-cell *matCellDef="let portion"> {{portion.charge | number:'1.0-2'}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="portionsDisplayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: portionsDisplayedColumns;"></tr>
+
+            </table>
+            
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+
+            <a routerLink="/meals"><button mat-raised-button color="primary">Retour</button></a>
+
+        </mat-card-content>
+    </mat-card>
+</section> 
+

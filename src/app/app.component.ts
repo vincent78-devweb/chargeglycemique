@@ -21,6 +21,10 @@ export class AppComponent {
             label: 'Calculateur',
             link: './calculator',
             index: 1
+          }, {
+            label: 'Repas',
+            link: './meals',
+            index: 2
         }
     ];
 }

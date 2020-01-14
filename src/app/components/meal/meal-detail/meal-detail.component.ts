@@ -30,7 +30,7 @@ export class MealDetailComponent implements OnInit {
   ngOnInit() {
     // Load meals list from the associate service
     this.route.paramMap.subscribe(params => {
-      this.meal = this.mealService.getMeals()[+params.get('Id')];
+      this.meal = this.mealService.getMeals()[+params.get('meal.id')];
     });
 
     // Set displayable columns of the portions table 

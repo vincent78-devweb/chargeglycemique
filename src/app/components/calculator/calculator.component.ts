@@ -126,6 +126,7 @@ export class CalculatorComponent implements OnInit {
 
     // Refresh portions list
     this.portions = this.portionsService.getPortions();
+    this.globalCharge = this.portionsService.getCharge();
   }
 
   /**

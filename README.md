@@ -56,21 +56,21 @@ Tous les attendus du MVP ainsi que les deux bonus sont présents dans le rendu.
 
 * **Saisie des aliments**
 
-![Aliments](./images/aliments1.png)
+![Aliments](./images/aliments1.PNG)
 
 * **Calculateur de portions**
 
-![Calculateur](./images/calculator1.png)
+![Calculateur](./images/calculator1.PNG)
 
 * **Enregistrement d'un repas**
 
-![Enregistrement d'un repas](./images/repas1.png)
+![Enregistrement d'un repas](./images/repas1.PNG)
 
 * **Liste des repas**
 
-![Liste des repas](./images/repas2.png)
+![Liste des repas](./images/repas2.PNG)
 
 * **Détail d'un repas**
 
-![Détail d'un repas](./images/repas3.png)
+![Détail d'un repas](./images/repas3.PNG)
 
